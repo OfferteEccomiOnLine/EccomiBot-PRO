@@ -1,0 +1,10 @@
+cron:
+  - name: "EccomiBot PRO mattina"
+    schedule: "0 7 * * *"
+    command: "python eccomibot_official_safe.py"
+  - name: "EccomiBot PRO pomeriggio"
+    schedule: "0 12 * * *"
+    command: "python eccomibot_official_safe.py"
+  - name: "EccomiBot PRO sera"
+    schedule: "30 18 * * *"
+    command: "python eccomibot_official_safe.py"
