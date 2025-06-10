@@ -12,7 +12,6 @@ KEEPA_API_KEY = os.getenv("KEEPA_API_KEY")
 AFFILIATE_TAG = "eol0a2-21"
 MAX_PRODUCTS = 3
 
-# Ampia lista categorie per rotazione
 CATEGORIES_FULL = {
     "Elettronica": 473452031,
     "Informatica": 425916031,
@@ -25,7 +24,7 @@ CATEGORIES_FULL = {
 
 def get_deals():
     keepa = Keepa(KEEPA_API_KEY)
-    selected_categories = random.sample(list(CATEGORIES_FULL.items()), 2)  # Rotazione casuale
+    selected_categories = random.sample(list(CATEGORIES_FULL.items()), 2)
     products = []
 
     for name, category_id in selected_categories:
