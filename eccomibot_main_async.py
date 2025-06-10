@@ -24,25 +24,20 @@ def get_deals():
 
     for name, category_id in CATEGORIES.items():
         print(f"🔍 Scansione: {name}")
-        deals = keepa.query(
-            category=category_id,
-            domain='IT',
-            product_code=None,
-            page=0,
-            per_page=10,
-            stats=180,
-            history=False
-        )
-        for p in deals:
-            try:
-                price = p['buyBoxSellerIdHistory'][-1]
-                if price:
+        try:
+            result = keepa.category_search(category=category_id, domain='IT', page=0)
+            for p in result['products']:
+                try:
                     asin = p['asin']
                     title = p['title'][:100] + ("..." if len(p['title']) > 100 else "")
                     url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
                     products.append((title, url))
-            except:
-                continue
+                except:
+                    continue
+        except Exception as e:
+            print(f"❌ Errore durante la scansione di {name}: {e}")
+            continue
+
     return products[:MAX_PRODUCTS]
 
 # Funzione di invio messaggio Telegram
