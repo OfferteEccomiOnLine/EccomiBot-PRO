@@ -31,7 +31,14 @@ def get_deals():
         print(f"🔍 Categoria in evidenza: {name}")
         try:
             asin_list = keepa.best_sellers_query(domain='IT', category=category_id)
+            if not asin_list:
+                print(f"❌ Nessun ASIN trovato per la categoria {name}")
+                continue
+
             product_info = keepa.query(asin_list[:10], domain='IT')
+            if not product_info or "products" not in product_info:
+                print(f"❌ Nessun prodotto valido trovato per {name}")
+                continue
 
             for product in product_info['products']:
                 title = product.get("title", "Offerta Amazon")[:100]
@@ -40,7 +47,7 @@ def get_deals():
                     url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
                     products.append((name, title, url))
         except Exception as e:
-            print(f"❌ Errore: {e}")
+            print(f"❌ Errore nella categoria {name}: {e}")
             continue
 
     return products[:MAX_PRODUCTS]
