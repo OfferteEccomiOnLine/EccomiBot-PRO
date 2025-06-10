@@ -30,15 +30,18 @@ def get_deals():
     for name, category_id in selected_categories:
         print(f"🔍 Categoria in evidenza: {name}")
         try:
-            result = keepa.category_search(category=category_id, domain='IT', page=0)
+            result = keepa.query(
+                domain='IT',
+                category=category_id,
+                stats=True,
+                pages=1
+            )
             for p in result['products']:
-                try:
-                    asin = p['asin']
+                if 'title' in p and 'asin' in p:
                     title = p['title'][:100] + ("..." if len(p['title']) > 100 else "")
+                    asin = p['asin']
                     url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
                     products.append((name, title, url))
-                except:
-                    continue
         except Exception as e:
             print(f"❌ Errore: {e}")
             continue
