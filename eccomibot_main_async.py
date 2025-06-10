@@ -49,16 +49,11 @@ async def main():
     bot = Bot(token=TOKEN)
     deals = get_deals()
     if not deals:
-        await bot.send_message(chat_id=CHANNEL, text="⚠️ Oggi nessuna super offerta trovata.
-Torna a trovarci più tardi! 💬")
+        await bot.send_message(chat_id=CHANNEL, text="⚠️ Oggi nessuna super offerta trovata.\nTorna a trovarci più tardi! 💬")
         return
 
     for cat, title, url in deals:
-        message = f"🔥 *{title}*
-📦 Categoria: _{cat}_
-🔗 [Clicca qui per l'offerta]({url})
-
-🌐 Powered by *Eccomi Online*"
+        message = f"🔥 *{title}*\n📦 Categoria: _{cat}_\n🔗 [Clicca qui per l'offerta]({url})\n\n🌐 Powered by *Eccomi Online*"
         await bot.send_message(chat_id=CHANNEL, text=message, parse_mode='Markdown')
 
     print(f"✅ {len(deals)} offerte pubblicate con successo.")
