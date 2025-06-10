@@ -54,8 +54,7 @@ async def main():
         return
 
     for title, url in deals:
-        message = f"🔥 *{title}*
-🔗 [Acquista ora]({url})"
+        message = f"🔥 *{title}*\n🔗 [Acquista ora]({url})"
         await bot.send_message(chat_id=CHANNEL, text=message, parse_mode='Markdown')
 
     print(f"✅ {len(deals)} offerte inviate!")
