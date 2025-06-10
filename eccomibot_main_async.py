@@ -30,18 +30,10 @@ def get_deals():
     for name, category_id in selected_categories:
         print(f"🔍 Categoria in evidenza: {name}")
         try:
-            result = keepa.query(
-                domain='IT',
-                category=category_id,
-                stats=True,
-                pages=1
-            )
-            for p in result['products']:
-                if 'title' in p and 'asin' in p:
-                    title = p['title'][:100] + ("..." if len(p['title']) > 100 else "")
-                    asin = p['asin']
-                    url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
-                    products.append((name, title, url))
+            result = keepa.best_sellers_query(domain='IT', category=category_id)
+            for asin in result:
+                url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
+                products.append((name, asin, url))
         except Exception as e:
             print(f"❌ Errore: {e}")
             continue
@@ -55,8 +47,8 @@ async def main():
         await bot.send_message(chat_id=CHANNEL, text="⚠️ Oggi nessuna super offerta trovata.\nTorna a trovarci più tardi! 💬")
         return
 
-    for cat, title, url in deals:
-        message = f"🔥 *{title}*\n📦 Categoria: _{cat}_\n🔗 [Clicca qui per l'offerta]({url})\n\n🌐 Powered by *Eccomi Online*"
+    for cat, asin, url in deals:
+        message = f"🔥 *Offerta top in {cat}!*\n🔗 [Scopri l'offerta qui]({url})\n\n🌐 Powered by *Eccomi Online*"
         await bot.send_message(chat_id=CHANNEL, text=message, parse_mode='Markdown')
 
     print(f"✅ {len(deals)} offerte pubblicate con successo.")
