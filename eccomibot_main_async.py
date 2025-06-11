@@ -1,69 +1,42 @@
 
 import asyncio
-import os
-from telegram import Bot
+import time
 from keepa import Keepa
-import random
+import logging
 
-# Config
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHANNEL = os.getenv("TELEGRAM_CHANNEL")
-KEEPA_API_KEY = os.getenv("KEEPA_API_KEY")
-AFFILIATE_TAG = "eol0a2-21"
-MAX_PRODUCTS = 3
+# Setup log
+logging.basicConfig(filename='token_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
 
-CATEGORIES_FULL = {
-    "Elettronica": 473452031,
-    "Informatica": 425916031,
-    "Accessori smartphone": 473453031,
-    "Piccoli elettrodomestici": 508065031,
-    "Giochi e console": 468642,
-    "Cura della persona": 6198092031,
-    "Casa e cucina": 6198083031
-}
+# Keepa setup
+API_KEY = "YOUR_API_KEY"
+keepa = Keepa(API_KEY)
 
-def get_deals():
-    keepa = Keepa(KEEPA_API_KEY)
-    selected_categories = random.sample(list(CATEGORIES_FULL.items()), 2)
-    products = []
+TOKEN_SAFETY_LIMIT = 300  # Soglia per attivare sleep intelligente
+SLEEP_DURATION = 600      # 10 minuti
 
-    for name, category_id in selected_categories:
-        print(f"🔍 Categoria in evidenza: {name}")
-        try:
-            asin_list = keepa.best_sellers_query(domain='IT', category=category_id)
-            if not asin_list:
-                print(f"❌ Nessun ASIN trovato per la categoria {name}")
-                continue
+async def fetch_offers():
+    # Controllo token disponibili
+    tokens_left = keepa.tokensLeft
+    if tokens_left < TOKEN_SAFETY_LIMIT:
+        print(f"⚠️ Solo {tokens_left} token disponibili. Attendo {SLEEP_DURATION//60} minuti per ricarica...")
+        logging.info(f"TOKENS LOW: {tokens_left} - Attesa forzata")
+        await asyncio.sleep(SLEEP_DURATION)
 
-            product_info = keepa.query(asin_list[:10], domain='IT')
-            if not product_info or "products" not in product_info:
-                print(f"❌ Nessun prodotto valido trovato per {name}")
-                continue
+    print(f"🔁 Token disponibili: {tokens_left}")
+    logging.info(f"TOKENS OK: {tokens_left}")
 
-            for product in product_info['products']:
-                title = product.get("title", "Offerta Amazon")[:100]
-                asin = product.get("asin")
-                if asin and title:
-                    url = f"https://www.amazon.it/dp/{asin}/?tag={AFFILIATE_TAG}"
-                    products.append((name, title, url))
-        except Exception as e:
-            print(f"❌ Errore nella categoria {name}: {e}")
-            continue
+    # Simulazione richiesta categoria
+    try:
+        # Inserisci qui la tua query Keepa es.:
+        # products = keepa.query(["B01N6S068R", "B07YFGQ28K"], domain=1)
+        print("🔍 Simulazione richiesta Keepa...")
+        await asyncio.sleep(2)
+        print("✅ Offerte recuperate (simulazione).")
 
-    return products[:MAX_PRODUCTS]
+    except Exception as e:
+        print(f"❌ Errore durante la richiesta Keepa: {e}")
+        logging.error(f"Errore Keepa: {e}")
 
-async def main():
-    bot = Bot(token=TOKEN)
-    deals = get_deals()
-    if not deals:
-        await bot.send_message(chat_id=CHANNEL, text="⚠️ Oggi nessuna super offerta trovata.\nTorna a trovarci più tardi! 💬")
-        return
-
-    for cat, title, url in deals:
-        message = f"🔥 *{title}*\n📦 Categoria: _{cat}_\n🔗 [Scopri l'offerta su Amazon]({url})\n\n🌐 Powered by *Eccomi Online*"
-        await bot.send_message(chat_id=CHANNEL, text=message, parse_mode='Markdown')
-
-    print(f"✅ {len(deals)} offerte pubblicate con successo.")
-
+# Run main
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(fetch_offers())
